@@ -6,10 +6,11 @@ require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
 var config = require("./config.json");
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-  extended: true
-}));
+
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
 
   // CORS removal
   app.use(function(req, res, next) {
@@ -18,20 +19,11 @@ app.use(bodyParser.urlencoded({
     next();
   });
 
-// Static HTML server
- app.use(express.static(__dirname + '/public'));
+  // Static HTML server
+  app.use(express.static(__dirname + '/public'));
 
- // DB Connection
- var pool = mysql.createPool(config);
-
- // DB Test
- app.get('/pooltest', (req,res)=>{
-   pool.query('SELECT * from bill;', function (error, results, fields) {
-     if (error) throw error;
-     console.log('The solution is: ', results);
-     res.send(results);
-   });
- });
+  // DB Connection
+  var pool = mysql.createPool(config);
 
   //  An endpoint to test from mobile application
   app.get('/test', (req, res) =>{
@@ -41,16 +33,51 @@ app.use(bodyParser.urlencoded({
     res.send(done);
   });
 
-  //  An endpoint to get items of a bill based on a bill id:
+  //   An endpoint to get items of a bill based on a bill id:
   app.get('/bill/:billId', (req,res)=>{
     pool.query('SELECT * FROM Bill where billId = ?',[req.params.billId], (error,results,fields)=>{
       if (error) throw error;
-       console.log('The solution is: ', rows);
+       console.log('The solution is: ', results);
       res.send(results);
     })
   });
 
-    //DVK: An endpoint to add a productin a particular order id:
+  // To check if the user is registered
+  app.get('/isRegistered', (req,res)=>{
+    pool.query('SELECT * from details;', function (error, results, fields) {
+      if (error) throw error;
+      console.log('The solution is: ', results);
+      var output;
+      if(results.length<1){
+        output = {
+          "isRegistered": 0
+        }
+      }
+      else{
+        output = {
+          "isRegistered": 1
+        }
+      }
+      res.send(output);
+    });
+  });
+
+  // To register the details of user
+  app.post('/Register', (req,res)=>{
+    pool.query('delete from details',(error,results,fields)=>{
+      if (error) throw error;
+       console.log("row deleted");
+    });
+    pool.query('Insert into details values(?, ?)',[req.body.name], [req.body.GST], (error,results,fields)=>{
+      if (error) throw error;
+      var output={
+        success: 1
+      }
+      res.send(output);
+    })
+  });
+
+  // An endpoint to add a productin a particular order id:
   app.get('/productscan/:pId', (req,res)=>{
     pool.query('Insert into `Bill` values(?, ?, 1)',[req.params.billId, req.params.pId], (error,results,fields)=>{
       if (error) throw error;
