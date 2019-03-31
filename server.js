@@ -68,7 +68,7 @@ var config = require("./config.json");
       if (error) throw error;
        console.log("row deleted");
     });
-    pool.query('Insert into details values(?, ?)',[req.body.name], [req.body.GST], (error,results,fields)=>{
+    pool.query('Insert into details values(?, ?)',[req.body.name, req.body.GST], (error,results,fields)=>{
       if (error) throw error;
       var output={
         success: 1
@@ -77,15 +77,17 @@ var config = require("./config.json");
     })
   });
 
-  // An endpoint to add a productin a particular order id:
-  app.get('/productscan/:pId', (req,res)=>{
-    pool.query('Insert into `Bill` values(?, ?, 1)',[req.params.billId, req.params.pId], (error,results,fields)=>{
+
+  // An endpoint to add a product in current order
+  app.post('/productscan', (req,res)=>{
+    pool.query('Insert into `CurrentOrder` values(?, ?, 1, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst], (error,results,fields)=>{
       if (error) throw error;
        console.log('The solution is: ', rows);
       res.send("added succesfully");
     })
   });
 
+  
   //Vaibhav: query for getting product with required productid
  app.get('/product/', (req,res)=>{
 
