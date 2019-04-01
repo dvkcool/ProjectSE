@@ -2,6 +2,89 @@
   <head>
     <title> GST Guide</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <script>
+      var e = 0;
+      function GoBill(){
+        isRegistered();
+        console.log("E: "+e);
+        if(e===0){
+          alert("You must register first");
+        }
+        else{
+          location.href="/bill.html";
+        }
+
+      }
+      function isRegistered(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', "http://localhost:8083/isRegistered", true);
+        xhr.send();
+
+        xhr.onreadystatechange = processRequest;
+
+        function processRequest(e) {
+          if (xhr.readyState == 4 && xhr.status == 200) {
+           var response = JSON.parse(xhr.responseText);
+           console.log(response);
+            e = response.isRegistered;
+            console.log(e);
+            console.log("E: "+e);
+            var bt = document.getElementById("Btext");
+            if(e===0){
+              bt.innerHTML = "Register";
+            }
+            else{
+              bt.innerHTML = "Edit Details";
+            }
+          }
+        }
+      }
+      function openForm() {
+        if(document.getElementById("RegForm").style.display === "block"){
+          document.getElementById("RegForm").style.display = "none";
+        }
+        else{
+          document.getElementById("RegForm").style.display = "block";
+        }
+      }
+
+      function closeForm() {
+        var name = document.getElementById("Name").value;
+        var gst = document.getElementById("GSTIN").value;
+        if(name===""|| gst===""){
+          alert("Please enter the required values");
+        }
+        else{
+          var data = {
+               name: name,
+               gst: gst
+             };
+             console.log(data);
+             console.log("Hi");
+          const url = "http://localhost:8083/Register";
+          fetch(url, {
+              method : "POST",
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                   name: name,
+                   gst: gst
+                 })
+          }).then(val =>{return val.json})
+          .then(val => {
+            console.log(val);
+            document.getElementById("RegForm").style.display = "none";
+          })
+          .catch(err => {console.log(err)})
+
+        }
+      }
+      function changeText(){
+        isRegistered();
+      }
+      changeText();
+    </script>
   </head>
   <body>
     <!-- Header Banner for title and menu options -->
@@ -34,17 +117,25 @@
 
     <!-- Right Section to display functional buttons -->
     <div id ="rightSection" style=" float: left; width:30%; border:1px solid #bec1bb; text-align: center;">
-      <button style="background-color: #4CAF50;border: none;color: white; width: 50%;
+      <button  onclick="openForm()" style="background-color: #4CAF50;border: none;color: white; width: 50%;
       padding: 10px; text-align: center; text-decoration: none; display: inline-block;
       font-size: 16px; margin: 4px 2px; border-radius: 10%">
-      Register </button>
+       <div id="Btext">Register</div></button>
+
       <br>
+      <form style="display: none;" id="RegForm">
+        <label> Name: </label><br>
+        <input type="text" id="Name" required/><br>
+        <label> GSTIN number: </label><br>
+        <input type="text" id="GSTIN" required/><br>
+        <input type = "submit" onclick="closeForm()" value="Submit"/>
+      </form>
       <div style="background-color: #42adf4; float: left; margin: 20px; text-align: center;  border-radius: 20%; width: 38%; height: 135">
       	<a href=""><i class="fas fa-cart-plus fa-5x"></i><p>Add new product</p></a>
       </div>
 
-      <div style="background-color: #42adf4; float: left; margin: 20px; text-align: center;  border-radius: 20%; width: 38%; height: 135 ">
-      	<a href=""><i class="fas fa-receipt fa-5x"></i><p>Go to billing page</p></a>
+      <div onclick="GoBill()"style="background-color: #42adf4; float: left; margin: 20px; text-align: center;  border-radius: 20%; width: 38%; height: 135 ">
+      	<i class="fas fa-receipt fa-5x" style="color: #5b0baa;"></i><p  style="color: #5b0baa;">Go to billing page</p>
       </div>
       <div style="background-color: #42adf4; float: left; margin: 20px; text-align: center; border-radius: 20%; width: 38%; height: 135  ">
       	<a href=""><i class="fas fa-cubes fa-5x"></i><p>View present items</p></a>

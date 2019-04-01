@@ -16,6 +16,7 @@ var config = require("./config.json");
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader("Access-Control-Allow-Headers", "Authorization, Cache-Control, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     next();
   });
 
@@ -64,15 +65,19 @@ var config = require("./config.json");
 
   // To register the details of user
   app.post('/Register', (req,res)=>{
+    console.log(req.body);
+    console.log("Hi");
     pool.query('delete from details',(error,results,fields)=>{
       if (error) throw error;
        console.log("row deleted");
     });
-    pool.query('Insert into details values(?, ?)',[req.body.name, req.body.GST], (error,results,fields)=>{
+    pool.query('Insert into details values(?, ?)',[req.body.name, req.body.gst], (error,results,fields)=>{
       if (error) throw error;
       var output={
         success: 1
       }
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+      res.setHeader("Access-Control-Allow-Headers", "Authorization, Cache-Control, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
       res.send(output);
     })
   });
@@ -80,16 +85,39 @@ var config = require("./config.json");
 
   // An endpoint to add a product in current order
   app.post('/productscan', (req,res)=>{
-    pool.query('Insert into `CurrentOrder` values(?, ?, 1, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst], (error,results,fields)=>{
+    pool.query('Insert into `CurrentOrder` values(?, ?, 1, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
       if (error) throw error;
        console.log('The solution is: ', rows);
       res.send("added succesfully");
     })
   });
 
-  
-  //Vaibhav: query for getting product with required productid
- app.get('/product/', (req,res)=>{
+  // To Discard current ORDER
+  app.get('/DiscardOrder', (req,res)=>{
+    pool.query('Delete FROM CurrentOrder', (error,results,fields)=>{
+      if (error) throw error;
+       console.log("Deleted");
+      res.send("Done");
+    })
+  });
+
+  // An endpoint to place the ORDER
+  app.post('/PlaceOrder', (req,res)=>{
+    pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
+      if (error) throw error;
+    });
+    pool.query('Insert into bill values(?, ?, ?)', [req.body.billId, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
+      if (error) throw error;
+    });
+    pool.query('delete from CurrentOrder', (error,results,fields)=>{
+      if (error) throw error;
+      console.log("Done");
+      res.send("Done");
+    })
+  });
+
+  // query for getting product with required productid
+ app.post('/product', (req,res)=>{
 
    console.log("req body: ", req.body);
    pool.query("SELECT * FROM products WHERE pid=?",[req.body.id], (err,rows,fields)=>{
