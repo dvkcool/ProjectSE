@@ -4,6 +4,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <script>
       var e = 0;
+      //Function to naviagate to Billing page
       function GoBill(){
         isRegistered();
         console.log("E: "+e);
@@ -15,6 +16,7 @@
         }
 
       }
+      // Function to check if user is registered
       function isRegistered(){
         var xhr = new XMLHttpRequest();
         xhr.open('GET', "http://localhost:8083/isRegistered", true);
