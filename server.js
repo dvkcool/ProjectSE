@@ -37,7 +37,7 @@ var config = require("./config.json");
   //   An endpoint to get items of a bill based on a bill id:
   app.get('/bill/:billId', (req,res)=>{
     pool.query('SELECT * FROM Bill where billId = ?',[req.params.billId], (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
        console.log('The solution is: ', results);
       res.send(results);
     })
@@ -46,7 +46,7 @@ var config = require("./config.json");
   // To check if the user is registered
   app.get('/isRegistered', (req,res)=>{
     pool.query('SELECT * from details;', function (error, results, fields) {
-      if (error) throw error;
+      if (error) { console.log(error)};
       console.log('The solution is: ', results);
       var output;
       if(results.length<1){
@@ -68,11 +68,11 @@ var config = require("./config.json");
     console.log(req.body);
     console.log("Hi");
     pool.query('delete from details',(error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
        console.log("row deleted");
     });
     pool.query('Insert into details values(?, ?)',[req.body.name, req.body.gst], (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
       var output={
         success: 1
       }
@@ -85,9 +85,10 @@ var config = require("./config.json");
 
   // An endpoint to add a product in current order
   app.post('/productscan', (req,res)=>{
-    pool.query('Insert into `CurrentOrder` values(?, ?, 1, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
-      if (error) throw error;
-       console.log('The solution is: ', rows);
+    pool.query('Insert into `CurrentOrder` values(?, ?, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
+      if (error){
+        console.log(error);
+      }
       res.send("added succesfully");
     })
   });
@@ -95,7 +96,7 @@ var config = require("./config.json");
   // To Discard current ORDER
   app.get('/DiscardOrder', (req,res)=>{
     pool.query('Delete FROM CurrentOrder', (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
        console.log("Deleted");
       res.send("Done");
     })
@@ -104,13 +105,13 @@ var config = require("./config.json");
   // An endpoint to place the ORDER
   app.post('/PlaceOrder', (req,res)=>{
     pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
     });
     pool.query('Insert into bill values(?, ?, ?)', [req.body.billId, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
-      if (error) throw error;
+      if (error) { console.log(error)};
       console.log("Done");
       res.send("Done");
     })
@@ -120,7 +121,7 @@ var config = require("./config.json");
  app.post('/product', (req,res)=>{
 
    console.log("req body: ", req.body);
-   pool.query("SELECT * FROM products WHERE pid=?",[req.body.id], (err,rows,fields)=>{
+   pool.query("SELECT * FROM product WHERE pid=?",[req.body.id], (err,rows,fields)=>{
      if(!err){
         console.log(rows);
         res.send(rows);

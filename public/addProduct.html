@@ -1,0 +1,84 @@
+<html>
+  <head>
+    <title> GST- Add Product</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <script>
+      var id="12";
+      var data = "gstdvk"+id;
+      function saveProduct(){
+        var url = "https://api.qrserver.com/v1/create-qr-code/?data="+data+"&amp;size=100x100";
+        var img = document.getElementById('barcode');
+        img.src = url;
+      }
+    </script>
+    <style>
+      th{
+        text-align:center;
+      }
+      td{
+        text-align:center;
+        margin: 50;
+      }
+    </style>
+
+  </head>
+  <body>
+    <!-- Header Banner for title and menu options -->
+    <marquee id="headerBanner" style =" background-color: #42adf4">
+      <p style="color: white; font-size:20; font-weight:bold"> GST Guide </p>
+    </marquee>
+
+    <!-- Form for new product addition -->
+    <div id="form" style=" box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  width: 75%;
+  margin: auto;
+  height: 60%;
+  text-align: center;
+  font-family: arial;">
+  <form>
+    <h3> Add product to our database: <i class="fas fa-cart-plus fa-5x"></i></h3>
+      <table style="text-align: center; margin-left: 15%; float: left; width:45%;" >
+        <tr>
+          <td> Product Name: </td>
+          <td> <input id ="PName" type ="text" required placeholder="Enter product Name"/></td>
+        </tr>
+        <tr>
+          <td> Price: </td>
+          <td> <input id ="Price" type ="text" required placeholder="Enter price"/></td>
+        </tr>
+        <tr>
+          <td> GST rate: </td>
+          <td> <input id ="gst" type ="text" required placeholder="Enter gst rate"/></td>
+        </tr>
+
+      </table>
+      <!--
+        <img id='barcode'
+           src="https://api.qrserver.com/v1/create-qr-code/?data=HelloWorld&amp;size=100x100"
+           alt=""
+           title="HELLO"
+           width="50"
+           height="50" />
+         -->
+         <img id='barcode'
+           src="/res/Barcode.jpg"
+           alt=""
+           title="HELLO"
+           width="120"
+           height="120"
+           border= 2 />
+           <br>
+           <br>
+           After product is added, to save the generated barcode you may do following:<br>
+             1. Use snipping tool to snip the qr code <br>
+             2. Right click on image and click on save image<br></form>
+
+           </form>
+
+        <button  onclick="saveProduct()" style="background-color: #4CAF50;border: none;color: white; width: 30%;
+        padding: 10px; text-align: center; text-decoration: none; display: inline-block;
+        font-size: 16px; margin: 4px 2px; border-radius: 25%;">
+         Add Product</button>
+       </div>
+
+</html>
