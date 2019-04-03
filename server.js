@@ -132,6 +132,31 @@ var config = require("./config.json");
    })
  });
 
+ app.post('/addProduct', (req, res)=>{
+   console.log(req.body);
+   pool.query("Insert into product(pname, gst, price) values(?, ?, ?)",[req.body.name, req.body.gst, req.body.price], (err,rows,fields)=>{
+     if(!err){
+       pool.query("select pId from product order by pId DESC limit 1", (err,ros,felds)=>{
+         if(!err){
+           var hi={
+             id: ros[0].pId
+           }
+           console.log(hi);
+           hi = JSON.stringify(hi);
+           console.log(hi);
+           res.send(hi);
+         }
+         else {
+           console.log(err);
+         }
+       })
+     }
+     else {
+       console.log(err);
+     }
+   })
+ });
+
   // Vaibhav: query for deleting a product from DATABASE
    app.get('/deletepro/', (req,res)=>{
      var pro = req.body.name;

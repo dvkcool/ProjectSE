@@ -3,12 +3,33 @@
     <title> GST- Add Product</title>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
     <script>
-      var id="12";
-      var data = "gstdvk"+id;
+
+
       function saveProduct(){
-        var url = "https://api.qrserver.com/v1/create-qr-code/?data="+data+"&amp;size=100x100";
-        var img = document.getElementById('barcode');
-        img.src = url;
+        var name = document.getElementById("name").value;
+        var gst = document.getElementById("gst").value;
+        var price = document.getElementById("price").value;
+        var url = "http://localhost:8083/addProduct";
+        fetch(url, {
+            method : "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                 name: name,
+                 gst: gst,
+                 price: price
+               })
+        }).then(val =>{return val.json()})
+        .then(val => {
+          console.log(val);
+          var id=val.id;
+          var data = "gstdvk"+id;
+          url = "https://api.qrserver.com/v1/create-qr-code/?data="+data+"&amp;size=100x100";
+          var img = document.getElementById('barcode');
+          img.src = url;
+        })
+        .catch(err => {console.log(err)})
       }
     </script>
     <style>
@@ -40,11 +61,11 @@
       <table style="text-align: center; margin-left: 15%; float: left; width:45%;" >
         <tr>
           <td> Product Name: </td>
-          <td> <input id ="PName" type ="text" required placeholder="Enter product Name"/></td>
+          <td> <input id ="name" type ="text" required placeholder="Enter product Name"/></td>
         </tr>
         <tr>
           <td> Price: </td>
-          <td> <input id ="Price" type ="text" required placeholder="Enter price"/></td>
+          <td> <input id ="price" type ="text" required placeholder="Enter price"/></td>
         </tr>
         <tr>
           <td> GST rate: </td>
