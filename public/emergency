@@ -6,8 +6,7 @@ require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
 var config = require("./config.json");
-const JSONToCSV = require("json2csv").parse;
-const FileSystem = require("fs");
+
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
     extended: true
@@ -38,7 +37,7 @@ const FileSystem = require("fs");
   //   An endpoint to get items of a bill based on a bill id:
   app.get('/bill/:billId', (req,res)=>{
     pool.query('SELECT * FROM Bill where billId = ?',[req.params.billId], (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
        console.log('The solution is: ', results);
       res.send(results);
     })
@@ -47,7 +46,7 @@ const FileSystem = require("fs");
   // To check if the user is registered
   app.get('/isRegistered', (req,res)=>{
     pool.query('SELECT * from details;', function (error, results, fields) {
-      if (error) { console.log(error)};
+      if (error) throw error;
       console.log('The solution is: ', results);
       var output;
       if(results.length<1){
@@ -69,11 +68,11 @@ const FileSystem = require("fs");
     console.log(req.body);
     console.log("Hi");
     pool.query('delete from details',(error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
        console.log("row deleted");
     });
     pool.query('Insert into details values(?, ?)',[req.body.name, req.body.gst], (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
       var output={
         success: 1
       }
@@ -100,10 +99,9 @@ const FileSystem = require("fs");
   //deleting the 1 from the Current order values
   //rows not defined errro so changing your result to row
   app.post('/productscan', (req,res)=>{
-    pool.query('Insert into `CurrentOrder` values(?, ?, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
-      if (error){
-        console.log(error);
-      }
+    pool.query('Insert into `CurrentOrder` values(?, ?, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,rows,fields)=>{
+      if (error) throw error;
+       console.log('The solution is: ', rows);
       res.send("added succesfully");
     })
   });
@@ -139,19 +137,8 @@ const FileSystem = require("fs");
   // To Discard current ORDER
   app.get('/DiscardOrder', (req,res)=>{
     pool.query('Delete FROM CurrentOrder', (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
        console.log("Deleted");
-      res.send("Done");
-    })
-  });
-
-  // Generate CSV report
-  app.get('/GenerateReport', (req,res)=>{
-    pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bill', ["22-Chhatisgarh", " ", "GST1234", "N"], (error,results,fields)=>{
-      if (error) { console.log(error)};
-      var csv = JSONToCSV(results, { fields: ["Innovice Number", "Invoice date", "Invoice Value", "Place Of Supply", "Rate", "Applicable % of Tax Rate", "Taxable Value", "Cess Amount", "E-Commerce GSTIN", "Sale from Bonded WH"]});
-    FileSystem.writeFileSync("./destination.csv", csv);
-       console.log(results);
       res.send("Done");
     })
   });
@@ -159,13 +146,13 @@ const FileSystem = require("fs");
   // An endpoint to place the ORDER
   app.post('/PlaceOrder', (req,res)=>{
     pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
     });
     pool.query('Insert into bill values(?, ?, ?)', [req.body.billId, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
-      if (error) { console.log(error)};
+      if (error) throw error;
       console.log("Done");
       res.send("Done");
     })
@@ -175,35 +162,10 @@ const FileSystem = require("fs");
  app.post('/product', (req,res)=>{
 
    console.log("req body: ", req.body);
-   pool.query("SELECT * FROM product WHERE pid=?",[req.body.id], (err,rows,fields)=>{
+   pool.query("SELECT * FROM products WHERE pid=?",[req.body.id], (err,rows,fields)=>{
      if(!err){
         console.log(rows);
         res.send(rows);
-     }
-     else {
-       console.log(err);
-     }
-   })
- });
-
- app.post('/addProduct', (req, res)=>{
-   console.log(req.body);
-   pool.query("Insert into product(pname, gst, price) values(?, ?, ?)",[req.body.name, req.body.gst, req.body.price], (err,rows,fields)=>{
-     if(!err){
-       pool.query("select pId from product order by pId DESC limit 1", (err,ros,felds)=>{
-         if(!err){
-           var hi={
-             id: ros[0].pId
-           }
-           console.log(hi);
-           hi = JSON.stringify(hi);
-           console.log(hi);
-           res.send(hi);
-         }
-         else {
-           console.log(err);
-         }
-       })
      }
      else {
        console.log(err);
