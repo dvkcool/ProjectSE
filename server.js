@@ -82,15 +82,57 @@ var config = require("./config.json");
     })
   });
 
+  //VAIBHAV: An endpoint to get the current order
+  app.get('/getCurrentOrder/', (req,res)=>{
+    pool.query('SELECT * FROM CurrentOrder', (err,rows,fields)=>{
+      if(!err){
+         res.send(rows);
+      }
+      else {
+        console.log(err);
+      }
+    })
+  });
+
 
   // An endpoint to add a product in current order
+  //deleting the 1 from the Current order values
+  //rows not defined errro so changing your result to row
   app.post('/productscan', (req,res)=>{
-    pool.query('Insert into `CurrentOrder` values(?, ?, 1, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
+    pool.query('Insert into `CurrentOrder` values(?, ?, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,rows,fields)=>{
       if (error) throw error;
        console.log('The solution is: ', rows);
       res.send("added succesfully");
     })
   });
+
+  //VAIBHAV: an endpoint to get all productscan
+  app.get('/getproducts/', (req,res)=>{
+
+    console.log("req body: ", req.body);
+    pool.query("SELECT * FROM products",[req.body.id], (err,rows,fields)=>{
+      if(!err){
+         console.log(rows);
+         res.send(rows);
+      }
+      else {
+        console.log(err);
+      }
+    })
+  });
+
+  //VAIBHAV: updating the product based on productId
+  app.post('/updateproduct',(req,res)=>{
+    pool.query('UPDATE products SET pname = ?, price = ?, gstrate = ? WHERE pid = ?',[req.body.name, req.body.price, req.body.gstrate, req.body.pid], (error,rows,fields)=>{
+      if(error) {
+        console.log(error);
+      }else{
+        res.send("updated");
+        console.log("done dana done");
+      }
+
+    })
+  })
 
   // To Discard current ORDER
   app.get('/DiscardOrder', (req,res)=>{
@@ -132,9 +174,9 @@ var config = require("./config.json");
  });
 
   // Vaibhav: query for deleting a product from DATABASE
-   app.get('/deletepro/', (req,res)=>{
-     var pro = req.body.name;
-     pool.query("DELETE FROM products WHERE pname=?",[pro],(err,rows,fields)=>{
+   app.post('/deleteproduct/', (req,res)=>{
+
+     pool.query("DELETE FROM products WHERE pid=?",[req.body.pid],(err,rows,fields)=>{
        if(!err){
          console.log("product deleted");
          res.send("deleted succesfully");
