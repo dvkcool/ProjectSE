@@ -1,8 +1,12 @@
 var doneupto = 0;
 var setheader = 0;
+var totalbill = 0;
+var totalgst = 0;
+var billid;
 var response;
 
 function getqr(data){
+  billid = data;
   var b = document.getElementById("barcode");
   b.src = "https://api.qrserver.com/v1/create-qr-code/?data="+data+"&amp;size=100x100"
 }
@@ -18,10 +22,34 @@ function getlatestbillid(){
            id = JSON.parse(xhr.responseText);
           console.log(id);
           var ele = document.getElementById("bid");
-          ele.innerHTML = "Bill id: " + id[0].billno;
-          getqr(id[0].billno);
+          ele.innerHTML = "Bill id: " + (id[0].billno+1);
+          getqr(id[0].billno+1);
         }
       }
+}
+
+function placeOrder(){
+  var d = new Date();
+  var gst = (totalgst/totalbill)*100;
+  var dat = d.getYear()+1900+"-"+d.getMonth()+"-"+d.getDate();
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST',"http://localhost:8083/PlaceOrder/", true);
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhr.onload = function () {
+  // do something to response
+   console.log(this.responseText);
+  };
+  console.log(billid+" "+totalbill+" "+totalgst+" "+dat+" "+gst);
+  var params = 'billId='+billid+'&TotalAmount='+totalbill+'&TotalGST='+totalgst.toFixed(2)+'&dat='+dat+'&gst'+gst.toFixed(2);
+   xhr.send(params);
+   // xhr.onreadystatechange = processRequest;
+   function processRequest(e) {
+       if (xhr.readyState == 4 && xhr.status == 200) {
+           var r = xhr.responseText;
+           console.log(r);
+         }
+       }
+
 }
 
 getlatestbillid();
@@ -99,7 +127,8 @@ function discard(){
 }
 
 function calc(){
-  var tot=0;
+  var tot1=0;
+  var tot2=0;
   var table = document.getElementById("table");
   for(var i=0;i < response.length;i++){
     console.log(i);
@@ -107,10 +136,15 @@ function calc(){
     var b = table.rows[i+1].childNodes[4].childNodes[0].value;
     var c = table.rows[i+1].childNodes[3].innerHTML;
     table.rows[i+1].childNodes[6].innerHTML = a*b;
-    tot += a*b;
+    tot1 += a*b;
     table.rows[i+1].childNodes[5].innerHTML = (a*b)*c/100;
-    tot += (a*b)*c/100;
+    tot2 += (a*b)*c/100;
   }
+  totalbill = tot1;
+  totalgst = tot2;
+  console.log("totamount: ",totalbill);
+  console.log("totalgst: ",totalgst);
+  var tot = tot1+tot2;
   var row = table.insertRow(response.length+1);
   var pName = row.insertCell(-1);
   pName.innerHTML = "TOTAL: "+tot.toFixed(2);

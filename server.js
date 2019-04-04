@@ -13,6 +13,8 @@ const FileSystem = require("fs");
     extended: true
   }));
 
+
+
   // CORS removal
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -157,11 +159,14 @@ const FileSystem = require("fs");
   });
 
   // An endpoint to place the ORDER
+  // VAIBHAV: adding bill data also here
+  //changing bill to bills
   app.post('/PlaceOrder', (req,res)=>{
     pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
       if (error) { console.log(error)};
     });
-    pool.query('Insert into bill values(?, ?, ?)', [req.body.billId, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
+    console.log(req.body.billId+" "+req.body.dat+" "+ req.body.TotalAmount+" "+req.body.TotalGST);
+    pool.query('Insert into bills values(?,?, ?, ?)', [req.body.billId,req.body.dat, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
       if (error) { console.log(error)};
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
