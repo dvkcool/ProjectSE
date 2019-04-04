@@ -246,7 +246,7 @@ const FileSystem = require("fs");
 
   //Vaibhav: -getting the latest bill id
    app.get('/getlatest/', (req,res)=>{
-     pool.query('SELECT * FROM bills ORDER BY billno LIMIT 1', (err,rows,fields)=>{
+     pool.query('SELECT billno FROM bills ORDER BY billno desc LIMIT 1', (err,rows,fields)=>{
        if(!err){
           res.send(rows);
        }
