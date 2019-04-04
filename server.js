@@ -6,7 +6,8 @@ require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
 var config = require("./config.json");
-
+const JSONToCSV = require("json2csv").parse;
+const FileSystem = require("fs");
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
     extended: true
@@ -98,6 +99,17 @@ var config = require("./config.json");
     pool.query('Delete FROM CurrentOrder', (error,results,fields)=>{
       if (error) { console.log(error)};
        console.log("Deleted");
+      res.send("Done");
+    })
+  });
+
+  // Generate CSV report
+  app.get('/GenerateReport', (req,res)=>{
+    pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bill', ["22-Chhatisgarh", " ", "GST1234", "N"], (error,results,fields)=>{
+      if (error) { console.log(error)};
+      var csv = JSONToCSV(results, { fields: ["Innovice Number", "Invoice date", "Invoice Value", "Place Of Supply", "Rate", "Applicable % of Tax Rate", "Taxable Value", "Cess Amount", "E-Commerce GSTIN", "Sale from Bonded WH"]});
+    FileSystem.writeFileSync("./destination.csv", csv);
+       console.log(results);
       res.send("Done");
     })
   });
