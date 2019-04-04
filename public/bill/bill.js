@@ -2,6 +2,11 @@ var doneupto = 0;
 var setheader = 0;
 var response;
 
+function getqr(data){
+  var b = document.getElementById("barcode");
+  b.src = "https://api.qrserver.com/v1/create-qr-code/?data="+data+"&amp;size=100x100"
+}
+
 function getlatestbillid(){
   var xhr = new XMLHttpRequest();
   xhr.open('GET', "http://localhost:8083/getlatest/", true);
@@ -14,6 +19,7 @@ function getlatestbillid(){
           console.log(id);
           var ele = document.getElementById("bid");
           ele.innerHTML = "Bill id: " + id[0].billno;
+          getqr(id[0].billno);
         }
       }
 }
