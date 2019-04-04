@@ -6,6 +6,7 @@ require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
 var config = require("./config.json");
+var ip = require("ip");
 const JSONToCSV = require("json2csv").parse;
 const FileSystem = require("fs");
   app.use(bodyParser.json());
@@ -64,6 +65,9 @@ const FileSystem = require("fs");
     });
   });
 
+  app.get('/ipaddr', (req,res)=>{
+    res.send(ip.address());
+  })
   // To register the details of user
   app.post('/Register', (req,res)=>{
     console.log(req.body);
