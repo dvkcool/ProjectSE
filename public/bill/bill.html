@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Bill</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="bill.css"/>
+</head>
+<body>
+
+<div class="header">
+  <h1>GST Guide</h1>
+</div>
+<div class="ext">
+  <h3 class="left">Bill Id</h3>
+  <img id='barcode'
+           src="res/Barcode.jpg"
+           alt=""
+           class="right"
+           title="HELLO"
+           width="120"
+           height="120"
+           border= 2 />
+</div>
+<table id="table">
+
+</table>
+<button class="buttonsp" onclick="calc()">calculate</button>
+<div class="setbuttons">
+  <button class="button" onclick="finalize()">Finalize</button>
+  <button class="button" onclick="discard()">Discard</button>
+</div>
+
+</body>
+<script src="bill.js"></script>
+</html>
