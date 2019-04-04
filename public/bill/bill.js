@@ -1,6 +1,25 @@
 var doneupto = 0;
 var setheader = 0;
 var response;
+
+function getlatestbillid(){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', "http://localhost:8083/getlatest/", true);
+  xhr.send();
+  xhr.onreadystatechange = processRequest;
+  var id;
+  function processRequest(e) {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+           id = JSON.parse(xhr.responseText);
+          console.log(id);
+          var ele = document.getElementById("bid");
+          ele.innerHTML = "Bill id: " + id[0].billno;
+        }
+      }
+}
+
+getlatestbillid();
+
 function myTimer() {
 
 var xhr = new XMLHttpRequest();
