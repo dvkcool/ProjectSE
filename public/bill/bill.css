@@ -2,6 +2,11 @@ body {
     font-family: Arial;
     margin: 0;
   }
+  .pos{
+    position: absolute;
+    right: 14px;
+    top: 180px;
+  }
 
   .ext{
     margin-top: 20px;

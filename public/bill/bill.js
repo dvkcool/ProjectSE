@@ -30,7 +30,7 @@ function getlatestbillid(){
 
 function placeOrder(){
   var d = new Date();
-  var gst = (totalgst/totalbill)*100;
+  var gst = ((totalgst-totalbill)/totalbill)*100;
   var dat = d.getYear()+1900+"-"+d.getMonth()+"-"+d.getDate();
   var xhr = new XMLHttpRequest();
   xhr.open('POST',"http://localhost:8083/PlaceOrder/", true);
@@ -47,6 +47,7 @@ function placeOrder(){
        if (xhr.readyState == 4 && xhr.status == 200) {
            var r = xhr.responseText;
            console.log(r);
+           discard();
          }
        }
 
@@ -141,7 +142,7 @@ function calc(){
     tot2 += (a*b)*c/100;
   }
   totalbill = tot1;
-  totalgst = tot2;
+  totalgst = tot2+tot1;
   console.log("totamount: ",totalbill);
   console.log("totalgst: ",totalgst);
   var tot = tot1+tot2;
@@ -149,10 +150,4 @@ function calc(){
   var pName = row.insertCell(-1);
   pName.innerHTML = "TOTAL: "+tot.toFixed(2);
 
-}
-
-function finalize(){
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', "http://localhost:8083/DiscardOrder", true);
-  xhr.send();
 }

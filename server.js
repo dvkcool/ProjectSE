@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
+var ip = require("ip");
 var config = require("./config.json");
 // const JSONToCSV = require("json2csv").parse;
 const FileSystem = require("fs");
@@ -22,6 +23,10 @@ const FileSystem = require("fs");
     res.setHeader("Access-Control-Allow-Headers", "Authorization, Cache-Control, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     next();
   });
+  //for getting ipaddress
+  app.get('/ipaddr',(req,res)=>{
+    res.send(ip.address());
+  })
 
   // Static HTML server
   app.use(express.static(__dirname + '/public'));
@@ -165,8 +170,8 @@ const FileSystem = require("fs");
     pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
       if (error) { console.log(error)};
     });
-    console.log(req.body.billId+" "+req.body.dat+" "+ req.body.TotalAmount+" "+req.body.TotalGST);
-    pool.query('Insert into bills values(?,?, ?, ?)', [req.body.billId,req.body.dat, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
+    console.log(req.body.billId+" "+req.body.dat+" "+ req.body.TotalAmount+" "+req.body.TotalGST+" "+req.body.gst);
+    pool.query('Insert into bills values(?,?, ?, ?,?)', [req.body.billId,req.body.dat, req.body.TotalAmount,req.body.gst, req.body.TotalGST ], (error,results,fields)=>{
       if (error) { console.log(error)};
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
@@ -190,6 +195,10 @@ const FileSystem = require("fs");
      }
    })
  });
+ //VAIBHAV: getting inspect
+ app.get('/getip',(req,res)=>{
+   res.send(req.connection.remoteAddress);
+ })
 
  app.post('/addProduct', (req, res)=>{
    console.log(req.body);
