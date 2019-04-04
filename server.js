@@ -105,12 +105,18 @@ const FileSystem = require("fs");
 
   // Generate CSV report
   app.get('/GenerateReport', (req,res)=>{
-    pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bill', ["22-Chhatisgarh", " ", "GST1234", "N"], (error,results,fields)=>{
-      if (error) { console.log(error)};
-      var csv = JSONToCSV(results, { fields: ["Innovice Number", "Invoice date", "Invoice Value", "Place Of Supply", "Rate", "Applicable % of Tax Rate", "Taxable Value", "Cess Amount", "E-Commerce GSTIN", "Sale from Bonded WH"]});
-    FileSystem.writeFileSync("./destination.csv", csv);
-       console.log(results);
-      res.send("Done");
+
+    pool.query('Select GSTIN_num  from details', (err,rest,flds)=>{
+      if (err) { console.log(err)};
+      var r = rest[0].GSTIN_num;
+      pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bill', ["22-Chhatisgarh", " ", r, "N"], (error,results,fields)=>{
+        if (error) { console.log(error)};
+        var csv = JSONToCSV(results, { fields: ["Innovice Number", "Invoice date", "Invoice Value", "Place Of Supply", "Rate", "Applicable % of Tax Rate", "Taxable Value", "Cess Amount", "E-Commerce GSTIN", "Sale from Bonded WH"]});
+        FileSystem.writeFileSync("./public/destination.csv", csv);
+         console.log(results);
+        res.send("Done");
+    })
+
     })
   });
 

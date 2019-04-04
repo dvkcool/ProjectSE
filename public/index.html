@@ -47,7 +47,18 @@
           }
         }
       }
-
+      function genReport(){
+        const url = "http://localhost:8083/GenerateReport";
+        fetch(url, {
+            method : "GET"
+        })
+        .then(val => {
+          console.log(val);
+          document.getElementById("Report").style.display = "none";
+          window.open("http://localhost:8083/destination.csv", "ReportWindow", "width=200,height=100");
+        })
+        .catch(err => {console.log(err)})
+      }
       function ShowReport(){
         if(document.getElementById("Report").style.display === "block"){
           document.getElementById("Report").style.display = "none";
@@ -160,14 +171,15 @@
       <div  onclick="ShowReport()" style="background-color: #42adf4; float: left; margin: 20px; text-align: center; border-radius: 20%; width: 38%; height: 135  ">
       	<i class="fas fa-paste fa-5x"></i><p>Generate report</p>
       </div>
-      <form id="Report" style="display: none;  position: fixed;  bottom: 0; right: 15px; height:10%; padding-top: 40; padding-bottom: 50; width:29%;  border: 3px solid #f1f1f1; z-index: 9;">
+      <div id="Report" style="display: none;  position: fixed;  bottom: 0; right: 15px; height:10%; padding-top: 40; padding-bottom: 50; width:29%;  border: 3px solid #f1f1f1; z-index: 9;">
+        <form>
         <label style="width:100%"><b> Start Date:</b></label>
         <input type="date" id="startDate" required/><br><br>
         <label style="width:100%"><b> End Date:</b></label>
         <input type="date" id="endDate" required/><br><br>
-        <input type="submit" value="GenerateReport" style="background-color: #4CAF50;border: none;color: white; border-radius: 10%"/>
       </form>
-    <div>
+      <button onclick="genReport()" type="submit"  style="background-color: #4CAF50;border: none;color: white; border-radius: 10%"> Generate report</button>
+    </div>
 
 
 </html>
