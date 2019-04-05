@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 require('request-debug')(request);
 var fetch =  require('fetch');
 var mysql = require('mysql');
+var ip = require("ip");
 var config = require("./config.json");
 var ip = require("ip");
 const JSONToCSV = require("json2csv").parse;
@@ -14,6 +15,8 @@ const FileSystem = require("fs");
     extended: true
   }));
 
+
+
   // CORS removal
   app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -21,6 +24,10 @@ const FileSystem = require("fs");
     res.setHeader("Access-Control-Allow-Headers", "Authorization, Cache-Control, Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
     next();
   });
+  //for getting ipaddress
+  app.get('/ipaddr',(req,res)=>{
+    res.send(ip.address());
+  })
 
   // Static HTML server
   app.use(express.static(__dirname + '/public'));
@@ -87,8 +94,22 @@ const FileSystem = require("fs");
     })
   });
 
+  //VAIBHAV: An endpoint to get the current order
+  app.get('/getCurrentOrder/', (req,res)=>{
+    pool.query('SELECT * FROM CurrentOrder', (err,rows,fields)=>{
+      if(!err){
+         res.send(rows);
+      }
+      else {
+        console.log(err);
+      }
+    })
+  });
+
 
   // An endpoint to add a product in current order
+  //deleting the 1 from the Current order values
+  //rows not defined errro so changing your result to row
   app.post('/productscan', (req,res)=>{
     pool.query('Insert into `CurrentOrder` values(?, ?, ?, ?, ? )',[req.body.pId, req.body.pName, req.body.price, req.body.gst, req.body.billId], (error,results,fields)=>{
       if (error){
@@ -97,6 +118,34 @@ const FileSystem = require("fs");
       res.send("added succesfully");
     })
   });
+
+  //VAIBHAV: an endpoint to get all productscan
+  app.get('/getproducts/', (req,res)=>{
+
+    console.log("req body: ", req.body);
+    pool.query("SELECT * FROM products",[req.body.id], (err,rows,fields)=>{
+      if(!err){
+         console.log(rows);
+         res.send(rows);
+      }
+      else {
+        console.log(err);
+      }
+    })
+  });
+
+  //VAIBHAV: updating the product based on productId
+  app.post('/updateproduct',(req,res)=>{
+    pool.query('UPDATE products SET pname = ?, price = ?, gstrate = ? WHERE pid = ?',[req.body.name, req.body.price, req.body.gstrate, req.body.pid], (error,rows,fields)=>{
+      if(error) {
+        console.log(error);
+      }else{
+        res.send("updated");
+        console.log("done dana done");
+      }
+
+    })
+  })
 
   // To Discard current ORDER
   app.get('/DiscardOrder', (req,res)=>{
@@ -126,11 +175,14 @@ const FileSystem = require("fs");
   });
 
   // An endpoint to place the ORDER
+  // VAIBHAV: adding bill data also here
+  //changing bill to bills
   app.post('/PlaceOrder', (req,res)=>{
     pool.query('Insert into OrderHistory select * from CurrentOrder', (error,results,fields)=>{
       if (error) { console.log(error)};
     });
-    pool.query('Insert into bill values(?, ?, ?)', [req.body.billId, req.body.TotalAmount, req.body.TotalGST], (error,results,fields)=>{
+    console.log(req.body.billId+" "+req.body.dat+" "+ req.body.TotalAmount+" "+req.body.TotalGST+" "+req.body.gst);
+    pool.query('Insert into bills values(?,?, ?, ?,?)', [req.body.billId,req.body.dat, req.body.TotalAmount,req.body.gst, req.body.TotalGST ], (error,results,fields)=>{
       if (error) { console.log(error)};
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
@@ -154,6 +206,10 @@ const FileSystem = require("fs");
      }
    })
  });
+ //VAIBHAV: getting inspect
+ app.get('/getip',(req,res)=>{
+   res.send(req.connection.remoteAddress);
+ })
 
  app.post('/addProduct', (req, res)=>{
    console.log(req.body);
@@ -181,9 +237,9 @@ const FileSystem = require("fs");
  });
 
   // Vaibhav: query for deleting a product from DATABASE
-   app.get('/deletepro/', (req,res)=>{
-     var pro = req.body.name;
-     pool.query("DELETE FROM products WHERE pname=?",[pro],(err,rows,fields)=>{
+   app.post('/deleteproduct/', (req,res)=>{
+
+     pool.query("DELETE FROM products WHERE pid=?",[req.body.pid],(err,rows,fields)=>{
        if(!err){
          console.log("product deleted");
          res.send("deleted succesfully");
@@ -215,7 +271,7 @@ const FileSystem = require("fs");
 
   //Vaibhav: -getting the latest bill id
    app.get('/getlatest/', (req,res)=>{
-     pool.query('SELECT * FROM bills ORDER BY billno LIMIT 1', (err,rows,fields)=>{
+     pool.query('SELECT billno FROM bills ORDER BY billno desc LIMIT 1', (err,rows,fields)=>{
        if(!err){
           res.send(rows);
        }
