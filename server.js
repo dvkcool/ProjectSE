@@ -45,7 +45,7 @@ const FileSystem = require("fs");
 
   //   An endpoint to get items of a bill based on a bill id:
   app.get('/bill/:billId', (req,res)=>{
-    pool.query('SELECT * FROM Bill where billId = ?',[req.params.billId], (error,results,fields)=>{
+    pool.query('SELECT * FROM bills where billId = ?',[req.params.billId], (error,results,fields)=>{
       if (error) { console.log(error)};
        console.log('The solution is: ', results);
       res.send(results);
@@ -136,7 +136,7 @@ const FileSystem = require("fs");
 
   //VAIBHAV: updating the product based on productId
   app.post('/updateproduct',(req,res)=>{
-    pool.query('UPDATE products SET pname = ?, price = ?, gstrate = ? WHERE pid = ?',[req.body.name, req.body.price, req.body.gstrate, req.body.pid], (error,rows,fields)=>{
+    pool.query('UPDATE products SET pName = ?, price = ?, gst = ? WHERE pId = ?',[req.body.name, req.body.price, req.body.gstrate, req.body.pid], (error,rows,fields)=>{
       if(error) {
         console.log(error);
       }else{
@@ -163,7 +163,7 @@ const FileSystem = require("fs");
       if (err) { console.log(err)};
       var r = rest[0].GSTIN_num;
       console.log(req.body);
-      pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bill where SaleDate >= ? && SaleDate<= ?', ["22-Chhatisgarh", " ", r, "N", req.body.startDate, req.body.endDate], (error,results,fields)=>{
+      pool.query('Select billId as `Innovice Number`,SaleDate as `Invoice date`, billAmount as `Invoice Value`,  ? as `Place Of Supply`, gst as `Rate`, ? as `Applicable % of Tax Rate`, taxAmount as `Taxable Value`, 0 as `Cess Amount`, ? as `E-Commerce GSTIN`, ? as `Sale from Bonded WH` from bills where SaleDate >= ? && SaleDate<= ?', ["22-Chhatisgarh", " ", r, "N", req.body.startDate, req.body.endDate], (error,results,fields)=>{
         if (error) { console.log(error)};
         var csv = JSONToCSV(results, { fields: ["Innovice Number", "Invoice date", "Invoice Value", "Place Of Supply", "Rate", "Applicable % of Tax Rate", "Taxable Value", "Cess Amount", "E-Commerce GSTIN", "Sale from Bonded WH"]});
         FileSystem.writeFileSync("./public/destination.csv", csv);
@@ -182,7 +182,7 @@ const FileSystem = require("fs");
       if (error) { console.log(error)};
     });
     console.log(req.body.billId+" "+req.body.dat+" "+ req.body.TotalAmount+" "+req.body.TotalGST+" "+req.body.gst);
-    pool.query('Insert into bills values(?,?, ?, ?,?)', [req.body.billId,req.body.dat, req.body.TotalAmount,req.body.gst, req.body.TotalGST ], (error,results,fields)=>{
+    pool.query('Insert into bills(billId, SaleDate, billAmount, taxAmount, gst) values(?,?, ?, ?,?)', [req.body.billId,req.body.dat, req.body.TotalAmount, req.body.TotalGST, req.body.gst ], (error,results,fields)=>{
       if (error) { console.log(error)};
     });
     pool.query('delete from CurrentOrder', (error,results,fields)=>{
@@ -196,7 +196,7 @@ const FileSystem = require("fs");
  app.post('/product', (req,res)=>{
 
    console.log("req body: ", req.body);
-   pool.query("SELECT * FROM product WHERE pid=?",[req.body.id], (err,rows,fields)=>{
+   pool.query("SELECT * FROM products WHERE pId=?",[req.body.id], (err,rows,fields)=>{
      if(!err){
         console.log(rows);
         res.send(rows);
@@ -213,9 +213,9 @@ const FileSystem = require("fs");
 
  app.post('/addProduct', (req, res)=>{
    console.log(req.body);
-   pool.query("Insert into product(pname, gst, price) values(?, ?, ?)",[req.body.name, req.body.gst, req.body.price], (err,rows,fields)=>{
+   pool.query("Insert into products(pName, gst, price) values(?, ?, ?)",[req.body.name, req.body.gst, req.body.price], (err,rows,fields)=>{
      if(!err){
-       pool.query("select pId from product order by pId DESC limit 1", (err,ros,felds)=>{
+       pool.query("select pId from products order by pId DESC limit 1", (err,ros,felds)=>{
          if(!err){
            var hi={
              id: ros[0].pId
@@ -239,7 +239,7 @@ const FileSystem = require("fs");
   // Vaibhav: query for deleting a product from DATABASE
    app.post('/deleteproduct/', (req,res)=>{
 
-     pool.query("DELETE FROM products WHERE pid=?",[req.body.pid],(err,rows,fields)=>{
+     pool.query("DELETE FROM products WHERE pId=?",[req.body.pid],(err,rows,fields)=>{
        if(!err){
          console.log("product deleted");
          res.send("deleted succesfully");
@@ -271,7 +271,7 @@ const FileSystem = require("fs");
 
   //Vaibhav: -getting the latest bill id
    app.get('/getlatest/', (req,res)=>{
-     pool.query('SELECT billno FROM bills ORDER BY billno desc LIMIT 1', (err,rows,fields)=>{
+     pool.query('SELECT billId FROM bills ORDER BY billId desc LIMIT 1', (err,rows,fields)=>{
        if(!err){
           res.send(rows);
        }

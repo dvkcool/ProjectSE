@@ -28,13 +28,13 @@ function myProductTable() {
           for (var i = 0; i < response.length; i++) {
            row = table.insertRow(-1);
            var pName = row.insertCell(-1);
-           pName.innerHTML = response[i].pid;
+           pName.innerHTML = response[i].pId;
            var pPrice = row.insertCell(-1);
-           pPrice.innerHTML = response[i].pname;
+           pPrice.innerHTML = response[i].pName;
            var gSlab = row.insertCell(-1);
            gSlab.innerHTML = response[i].price;
            var rate = row.insertCell(-1);
-           rate.innerHTML = response[i].gstrate;
+           rate.innerHTML = response[i].gst;
            var action = row.insertCell(-1);
            var btn = document.createElement("BUTTON");
            var t = document.createTextNode("edit");
@@ -90,7 +90,7 @@ function edit(i){
   var name;
   var price;
   var gstrate;
-  var pid = response[i].pid;
+  var pid = response[i].pId;
   name = table.rows[i+1].childNodes[1].childNodes[0].value;
   price = table.rows[i+1].childNodes[2].childNodes[0].value;
   gstrate = table.rows[i+1].childNodes[3].childNodes[0].value;
@@ -114,7 +114,7 @@ function edit(i){
   }
 
   function del(i){
-    var pid = response[i].pid;
+    var pid = response[i].pId;
     var xhr = new XMLHttpRequest();
     xhr.open('POST',"http://localhost:8083/deleteproduct/", true);
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
@@ -131,7 +131,7 @@ function edit(i){
              console.log(r);
              myProductTable();
            }
-     } 
+     }
   }
 
 myProductTable();

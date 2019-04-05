@@ -22,8 +22,8 @@ function getlatestbillid(){
            id = JSON.parse(xhr.responseText);
           console.log(id);
           var ele = document.getElementById("bid");
-          ele.innerHTML = "Bill id: " + (id[0].billno+1);
-          getqr(id[0].billno+1);
+          ele.innerHTML = "Bill id: " + (id[0].billId+1);
+          getqr(id[0].billId+1);
         }
       }
 }
@@ -40,17 +40,17 @@ function placeOrder(){
    console.log(this.responseText);
   };
   console.log(billid+" "+totalbill+" "+totalgst+" "+dat+" "+gst);
-  var params = 'billId='+billid+'&TotalAmount='+totalbill+'&TotalGST='+totalgst.toFixed(2)+'&dat='+dat+'&gst'+gst.toFixed(2);
+  var params = 'billId='+billid+'&TotalAmount='+totalbill+'&TotalGST='+totalgst.toFixed(2)+'&dat='+dat+'&gst='+gst.toFixed(2);
    xhr.send(params);
-   // xhr.onreadystatechange = processRequest;
+  xhr.onreadystatechange = processRequest;
    function processRequest(e) {
        if (xhr.readyState == 4 && xhr.status == 200) {
            var r = xhr.responseText;
            console.log(r);
            discard();
+           location.reload();
          }
        }
-
 }
 
 getlatestbillid();
@@ -68,8 +68,11 @@ function processRequest(e) {
 var headers = ["ProductId", "ProductName","Price","gst(%)","quantity","gst","total"];
 //Create a HTML Table element.
 var table = document.getElementById("table");
-//Add the header row.
-var row = table.insertRow(-1);
+
+    if(setheader == 0){
+      //Add the header row.
+      var row = table.insertRow(-1);
+    }
 for (var i = 0; i < 7, (setheader == 0); i++) {
    var headerCell = document.createElement("TH");
    headerCell.innerHTML = headers[i];
@@ -79,7 +82,7 @@ for (var i = 0; i < 7, (setheader == 0); i++) {
 }
 
 //Add the data rows.
-
+console.log("This: "+response.length+" doneupto: "+doneupto);
 for (var i = doneupto; i < response.length; i++) {
    row = table.insertRow(-1);
    var pName = row.insertCell(-1);
